@@ -121,9 +121,13 @@ int FcgiCodec::ParseRequest(TcpConnectionPtr const &conn, Buffer &buffer)
         } else {
           /* Terminator of the FCGI_PARAMS */
           LOG_TRACE << "Terminator of PARAMS";
+          /* NOTICE
+           * ParseParams will advance read index
+           * return parse result early */
           ParseParams(request);
+          request.param_stream.Shrink(0);
           buffer.AdvanceRead(header.padding_length);
-          buffer.Shrink(0);
+          return PARSE_OK_PARTLY;
         }
       } break;
 
@@ -165,6 +169,7 @@ int FcgiCodec::ParseRequest(TcpConnectionPtr const &conn, Buffer &buffer)
                 .content_length =
                     sock::ToHostByteOrder16(FCGI_UNKNOWN_TYPE_BODY_LENGTH),
                 .padding_length = 0,
+                .reserved = 0,
             },
             .body{
                 .type = header.type,
@@ -262,9 +267,8 @@ void FcgiCodec::SendStdout(TcpConnectionPtr const &conn, uint16_t id,
 }
 
 void FcgiCodec::SendStdout(TcpConnectionPtr const &conn, uint16_t id,
-    ChunkList &output)
+                           ChunkList &output)
 {
-
 }
 
 void FcgiCodec::SendStderr(TcpConnectionPtr const &conn, uint16_t id,
@@ -275,9 +279,8 @@ void FcgiCodec::SendStderr(TcpConnectionPtr const &conn, uint16_t id,
 }
 
 void FcgiCodec::SendStderr(TcpConnectionPtr const &conn, uint16_t id,
-    ChunkList &output)
+                           ChunkList &output)
 {
-
 }
 
 static inline void EndTerminator(TcpConnectionPtr const &conn, FcgiType type,
