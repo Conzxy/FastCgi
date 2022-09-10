@@ -29,5 +29,15 @@ struct EndRequestBody {
   char reserved[3];
 };
 
+struct UnknownTypeBody {
+  uint8_t type;
+  char reserved[7];
+};
+
+struct UnknownTypeRecord {
+  RecordHeader header;
+  UnknownTypeBody body;
+};
+
 }  // namespace fcgi
 #endif  // FCGI_TYPE_H_
